@@ -36,11 +36,12 @@ spec:
           image: traefik:v2.3
           args:
             - --api.dashboard=true
+            - --api.insecure=true
             - --ping=true
             - --accesslog
-            - --entrypoints.traefik.address=:8080
-            - --entrypoints.web.address=:80
-            - --entrypoints.websecure.address=:443
+            - --entrypoints.traefik.address=:9080
+            - --entrypoints.web.address=:8080
+            - --entrypoints.websecure.address=:8443
             # Uncomment the below lines to redirect http requests to https.
             # This specifies the port :443 and not the https entrypoint name for the
             # redirect as the service is listening on port 443 and directing traffic
@@ -49,8 +50,8 @@ spec:
             # - --entrypoints.web.http.redirections.entrypoint.to=:443
             # - --entrypoints.web.http.redirections.entrypoint.scheme=https
             
-            #- --providers.kubernetescrd
-            #- --providers.kubernetesingress
+            - --providers.kubernetescrd
+            - --providers.kubernetesingress
             #- --certificatesresolvers.godaddy.acme.email=me@mydomain.io
             #- --certificatesresolvers.godaddy.acme.storage=/etc/traefik/certs/acme.json
             #- --certificatesResolvers.godaddy.acme.dnsChallenge.provider=godaddy
@@ -74,7 +75,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /ping
-              port: 80
+              port: 9080
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 10
@@ -87,11 +88,11 @@ spec:
             # The Traefik container is listening on ports > 1024 so the container
             # can be run as a non-root user and they can bind to these ports.
             - name: web
-              containerPort: 80
-            - name: websecure
-              containerPort: 443
-            - name: admin
               containerPort: 8080
+            - name: websecure
+              containerPort: 8443
+            - name: admin
+              containerPort: 9080
           #volumeMounts:
           #  - name: certificates
           #    mountPath: /etc/traefik/certs
